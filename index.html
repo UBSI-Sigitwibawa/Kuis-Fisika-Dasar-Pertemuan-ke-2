@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kuis Fisika Dasar - Vektor dalam Teknik Industri</title>
+<style>
+:root{--navy:#0b2a5b;--navy2:#143d85;--gold:#f5b800;--bg:#f2f5fa;--ok:#1b8a3f;--bad:#c62828;--tx:#1c2433}
+*{box-sizing:border-box}
+body{margin:0;font-family:Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--tx);line-height:1.5}
+header{background:var(--navy);color:#fff;padding:22px 16px;text-align:center;border-bottom:5px solid var(--gold)}
+header h1{margin:0;font-size:1.4rem}header p{margin:6px 0 0;opacity:.85;font-size:.95rem}
+main{max-width:820px;margin:0 auto;padding:16px}
+.card{background:#fff;border-radius:10px;padding:18px;margin:14px 0;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+label.f{display:block;font-weight:600;margin-top:12px}
+input[type=text],select{width:100%;padding:10px;border:1px solid #b9c4d8;border-radius:6px;font-size:1rem;margin-top:4px}
+button{background:var(--navy2);color:#fff;border:0;border-radius:6px;padding:11px 20px;font-size:1rem;cursor:pointer;margin-top:14px}
+button:hover{background:var(--navy)}button.alt{background:var(--gold);color:#222;font-weight:600}
+.msg{color:var(--bad);margin-top:10px;font-weight:600}
+.bar{position:sticky;top:0;background:var(--navy);color:#fff;padding:8px 14px;border-radius:0 0 8px 8px;z-index:5;display:flex;justify-content:space-between;font-size:.9rem}
+.q h3{margin:0 0 10px;font-size:1.02rem}.q h3 span{color:var(--navy2)}
+.opt{display:block;padding:9px 12px;border:1px solid #d3dbea;border-radius:6px;margin:6px 0;cursor:pointer}
+.opt:hover{background:#eef3fc}.opt input{margin-right:8px}
+.opt.right{background:#e3f5e8;border-color:var(--ok)}.opt.wrong{background:#fde7e7;border-color:var(--bad)}
+.exp{margin-top:10px;padding:10px 12px;background:#fff8e1;border-left:4px solid var(--gold);border-radius:4px;font-size:.93rem}
+.tag{font-weight:700}.tag.ok{color:var(--ok)}.tag.no{color:var(--bad)}
+.score{text-align:center}.score .n{font-size:3rem;font-weight:800;color:var(--navy2)}
+table.id td{padding:3px 12px 3px 0}
+@media print{body{background:#fff}.noprint,.bar{display:none!important}.card{box-shadow:none;border:1px solid #ccc;break-inside:avoid}header{-webkit-print-color-adjust:exact;print-color-adjust:exact}.opt.right,.opt.wrong,.exp{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style>
+</head>
+<body>
+<header><h1>Kuis Fisika Dasar – Pertemuan ke-2</h1><p>Vektor dalam Teknik Industri: Dari Konsep Fisika ke Aplikasi Nyata</p></header>
+<main>
+<section id="login" class="card noprint">
+<h2>Data Mahasiswa</h2>
+<label class="f">Nama Lengkap<input type="text" id="nama" placeholder="Nama lengkap"></label>
+<label class="f">NIM<input type="text" id="nim" placeholder="Nomor Induk Mahasiswa" inputmode="numeric"></label>
+<label class="f">Program Studi<input type="text" id="prodi" list="pl" placeholder="Pilih / ketik program studi"></label>
+<datalist id="pl"><option>Teknik Industri</option><option>Teknologi Komputer</option><option>Teknik Informatika</option><option>Sistem Informasi</option><option>Manajemen Informatika</option></datalist>
+<p style="font-size:.9rem;color:#555">30 soal pilihan ganda. Kuis hanya dapat dikerjakan satu kali per NIM.</p>
+<div id="lmsg" class="msg"></div>
+<button onclick="start()">Mulai Kuis</button>
+</section>
+
+<section id="quiz" style="display:none">
+<div class="bar noprint"><span id="who"></span><span id="prog">0/30 terjawab</span></div>
+<div id="list"></div>
+<div class="card noprint"><div id="qmsg" class="msg"></div><button class="alt" onclick="submitQ()">Kumpulkan Jawaban</button></div>
+</section>
+
+<section id="result" style="display:none">
+<div class="card score">
+<div>Hasil Kuis</div><div class="n" id="sc"></div><div id="sd"></div>
+<table class="id" style="margin:12px auto 0;text-align:left" id="idt"></table>
+<button class="noprint" onclick="window.print()">Simpan ke PDF / Cetak</button>
+<p class="noprint" style="font-size:.85rem;color:#555">Pada jendela cetak pilih "Simpan sebagai PDF" sebagai printer tujuan.</p>
+</div>
+<div id="review"></div>
+</section>
+</main>
+<script>
+const Q=[
+["Forklift bergerak sejauh 10 meter. Informasi ini menurut materi baru memberi tahu kita …",["Posisi akhir forklift secara pasti","Hanya besar (nilai) gerakan, posisi belum diketahui","Vektor perpindahan yang lengkap","Arah gerakan forklift"],1,"Tanpa arah, forklift bisa berada di titik mana pun pada lingkaran radius 10 m. '10 meter' hanya besar; '10 meter ke kanan' baru vektor perpindahan."],
+["Besaran vektor adalah besaran yang dinyatakan oleh …",["Nilai saja","Arah saja","Nilai dan arah","Satuan dan waktu"],2,"Vektor = besar (nilai) + arah. Skalar hanya memiliki nilai."],
+["Berikut ini yang termasuk besaran skalar adalah …",["Gaya tarik 500 N ke kanan","Percepatan 3 m/s² ke Timur","Massa bahan 50 kg","Berat 490 N ke bawah"],2,"Massa cukup dinyatakan dengan nilai (50 kg) tanpa arah, sehingga skalar. Gaya, percepatan, dan berat adalah vektor."],
+["Kecepatan (velocity) 40 km/jam ke Utara termasuk besaran …",["Skalar, karena memiliki satuan","Vektor, karena memiliki nilai dan arah","Skalar, karena berupa kelajuan","Bukan besaran fisika"],1,"Velocity memiliki nilai dan arah (ke Utara), sehingga vektor."],
+["Pasangan besaran yang keduanya SKALAR adalah …",["Jarak dan kelajuan (speed)","Perpindahan dan kecepatan (velocity)","Gaya dan berat","Percepatan dan perpindahan"],0,"Jarak dan kelajuan skalar; perpindahan, kecepatan (velocity), gaya, berat, dan percepatan vektor."],
+["Massa jenis baja 7.850 kg/m³. Massa baja bervolume 1 m³ adalah …",["2.700 kg","785 kg","7.850 kg","78.500 kg"],2,"m = ρ × V = 7.850 × 1 = 7.850 kg. Massa jenis adalah besaran skalar."],
+["Massa jenis aluminium 2.700 kg/m³ dan baja 7.850 kg/m³. Pada volume sama, massa baja kira-kira … massa aluminium.",["1,5 kali","2,9 kali","5 kali","10 kali"],1,"7.850 / 2.700 ≈ 2,9. Nilai ini penting untuk menentukan kapasitas crane dan forklift."],
+["AGV bergerak 30 m ke Timur lalu 40 m ke Utara. Jarak tempuh (skalar) AGV adalah …",["10 m","50 m","70 m","1.200 m"],2,"Jarak = total lintasan = 30 + 40 = 70 m."],
+["Untuk gerak AGV pada soal sebelumnya, besar perpindahannya adalah …",["50 m","70 m","35 m","10 m"],0,"Perpindahan = garis lurus posisi awal ke akhir = √(30² + 40²) = √2500 = 50 m."],
+["Pada konvensi arah di lantai pabrik, bergerak ke kiri diberi tanda …",["+X (Timur)","−X (Barat)","+Y (Utara)","−Y (Selatan)"],1,"Kanan = Timur = +X; Kiri = Barat = −X."],
+["Arah bawah (Selatan) pada konvensi lantai pabrik dinyatakan sebagai …",["+X","−X","+Y","−Y"],3,"Atas = Utara = +Y; Bawah = Selatan = −Y."],
+["Vektor perpindahan R = +10î + 5ĵ berarti forklift berpindah …",["10 m ke Utara lalu 5 m ke Timur","10 m ke Timur lalu 5 m ke Utara","10 m ke Barat lalu 5 m ke Selatan","15 m ke Timur laut"],1,"î menunjukkan sumbu X (Timur) dan ĵ sumbu Y (Utara): 10 m ke Timur (+X), lalu 5 m ke Utara (+Y)."],
+["Besar perpindahan akhir untuk R = 10î + 5ĵ adalah …",["15 m","11,18 m","7,5 m","50 m"],1,"R = √(10² + 5²) = √125 ≈ 11,18 m."],
+["Vektor satuan î, ĵ, dan k pada dasarnya berfungsi sebagai …",["Satuan massa","Label arah pada sumbu X, Y, dan Z","Besar gaya","Konstanta gravitasi"],1,"î, ĵ, k hanyalah nama untuk menunjukkan arah pada sumbu X, Y, dan Z."],
+["Operator menarik troli dengan F = 100 N membentuk sudut 30°. Komponen horizontal Fx adalah …",["50 N","86,6 N","100 N","173,2 N"],1,"Fx = F cos 30° = 100 × 0,866 = 86,6 N."],
+["Pada gaya yang sama (100 N, 30°), komponen vertikal Fy adalah …",["86,6 N","100 N","50 N","30 N"],2,"Fy = F sin 30° = 100 × 0,5 = 50 N. Bagian ini terbuang untuk mengangkat troli."],
+["Jika sudut tarikan diperbesar menjadi 60° dengan F = 100 N, komponen horizontal yang memajukan troli menjadi …",["86,6 N","100 N","50 N","173,2 N"],2,"Fx = 100 × cos 60° = 100 × 0,5 = 50 N. Semakin miring tarikan, semakin kecil gaya yang memajukan troli."],
+["Dua pekerja mendorong conveyor searah dengan gaya 300 N dan 200 N. Resultan gayanya adalah …",["100 N","500 N","360,6 N","60.000 N"],1,"Vektor searah dijumlahkan: R = 300 + 200 = 500 N."],
+["Dua gaya pada conveyor: 300 N ke kanan dan 200 N ke kiri. Resultannya …",["500 N ke kanan","100 N ke kanan","100 N ke kiri","0 N"],1,"Berlawanan arah dikurangkan: 300 − 200 = 100 N, arah mengikuti gaya yang lebih besar (kanan)."],
+["Dua crane menarik beban dengan gaya 300 N dan 200 N. Apakah resultan selalu 500 N?",["Ya, selalu","Tidak, hanya jika kedua gaya searah","Ya, jika sudutnya 60°","Tidak, resultan selalu 100 N"],1,"Penjumlahan skalar biasa hanya berlaku jika gaya searah. Jika membentuk sudut, harus memakai penjumlahan vektor."],
+["Rumus besar resultan dua vektor A dan B yang mengapit sudut θ (metode jajaran genjang) adalah …",["R = A + B","R = √(A² + B² + 2AB cos θ)","R = A·B·sin θ","R = √(A² − B²)"],1,"Metode jajaran genjang: R = √(A² + B² + 2AB cos θ)."],
+["Gaya 300 N dan 200 N membentuk sudut 60°. Besar resultannya adalah …",["±360,6 N","500 N","±435,9 N","100 N"],2,"R² = 300² + 200² + 2(300)(200)cos 60° = 90.000 + 40.000 + 60.000 = 190.000, sehingga R ≈ 435,9 N. (Catatan: pada slide tertulis √130.000 ≈ 360,6 N; nilai itu justru berlaku untuk sudut 90°, sebab suku 2AB cos θ = 0.)"],
+["Jika kedua gaya 300 N dan 200 N saling tegak lurus (θ = 90°), resultannya adalah …",["500 N","360,6 N","435,9 N","100 N"],1,"cos 90° = 0, sehingga R = √(300² + 200²) = √130.000 ≈ 360,6 N."],
+["Gaya 400 N ke kanan dan 150 N ke kiri bekerja pada satu benda segaris. Resultannya adalah …",["550 N ke kanan","250 N ke kiri","250 N ke kanan","60.000 N"],2,"Berlawanan arah dikurangkan: 400 − 150 = 250 N ke arah gaya yang lebih besar (kanan)."],
+["Hasil perkalian titik (dot product) dua vektor berupa …",["Vektor","Skalar","Matriks","Sudut"],1,"Dot product menghasilkan skalar, misalnya usaha/energi (Joule) yang tidak memiliki arah."],
+["Hasil perkalian silang (cross product) dua vektor berupa …",["Skalar","Vektor","Bilangan tanpa satuan","Selalu nol"],1,"Cross product menghasilkan vektor, misalnya torsi yang memiliki arah putar (aturan tangan kanan)."],
+["Gaya 100 N menarik searah lintasan sejauh 5 m (θ = 0°). Usaha yang dilakukan adalah …",["20 J","105 J","500 J","50 J"],2,"W = F·s·cos 0° = 100 × 5 × 1 = 500 Joule."],
+["Gaya 100 N menarik troli sejauh 5 m dengan sudut 60° terhadap lintasan. Usaha yang dilakukan adalah …",["500 J","433 J","250 J","100 J"],2,"W = F·s·cos θ = 100 × 5 × 0,5 = 250 J. Hanya komponen gaya yang sejajar lintasan yang melakukan usaha."],
+["Kunci pas dengan lengan r = 0,2 m ditekan gaya tegak lurus F = 100 N. Besar torsinya adalah …",["20 Nm","500 Nm","0,2 Nm","100,2 Nm"],0,"|τ| = r·F·sin 90° = 0,2 × 100 × 1 = 20 Nm."],
+["Jika lengan kunci pas diperpanjang menjadi 2r (gaya tetap 100 N, tetap tegak lurus), torsi menjadi …",["20 Nm","10 Nm","40 Nm","200 Nm"],2,"Torsi sebanding dengan panjang lengan: τ = 0,4 × 100 = 40 Nm. Semakin panjang lengan gaya, semakin besar efek putarnya."]
+];
+const L=[...'ABCD'];let me={},ans=new Array(Q.length).fill(null);
+const $=id=>document.getElementById(id),K=n=>'kuisvektor_'+n;
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function start(){
+ const nama=$('nama').value.trim(),nim=$('nim').value.trim(),prodi=$('prodi').value.trim();
+ if(!nama||!nim||!prodi){$('lmsg').textContent='Nama, NIM, dan Program Studi wajib diisi.';return}
+ me={nama,nim,prodi};
+ try{const s=localStorage.getItem(K(nim));if(s){const d=JSON.parse(s);me=d.me;ans=d.ans;$('lmsg').textContent='';showResult(d.date,true);return}}catch(e){}
+ $('login').style.display='none';$('quiz').style.display='block';$('who').textContent=nama+' · '+nim;
+ renderQuiz();window.scrollTo(0,0)}
+function renderQuiz(){
+ $('list').innerHTML=Q.map((q,i)=>`<div class="card q"><h3><span>${i+1}.</span> ${esc(q[0])}</h3>`+q[1].map((o,j)=>`<label class="opt"><input type="radio" name="q${i}" value="${j}" onchange="pick(${i},${j})">${L[j]}. ${esc(o)}</label>`).join('')+'</div>').join('')}
+function pick(i,j){ans[i]=j;$('prog').textContent=ans.filter(a=>a!==null).length+'/'+Q.length+' terjawab'}
+function submitQ(){
+ const un=ans.filter(a=>a===null).length;
+ if(un&&!confirm(un+' soal belum dijawab. Tetap kumpulkan? Kuis tidak dapat diulang.'))return;
+ if(!un&&!confirm('Kumpulkan jawaban sekarang? Kuis tidak dapat diulang.'))return;
+ const date=new Date().toLocaleString('id-ID');
+ try{localStorage.setItem(K(me.nim),JSON.stringify({me,ans,date}))}catch(e){}
+ showResult(date,false)}
+function showResult(date,again){
+ $('login').style.display='none';$('quiz').style.display='none';$('result').style.display='block';
+ const ok=Q.filter((q,i)=>ans[i]===q[2]).length,nilai=Math.round(ok/Q.length*100);
+ $('sc').textContent=nilai;
+ $('sd').innerHTML=`Benar <b>${ok}</b> dari ${Q.length} soal · Salah/kosong ${Q.length-ok}`+(again?'<br><small>Kuis ini sudah pernah dikerjakan dengan NIM tersebut; berikut hasil yang tersimpan.</small>':'');
+ $('idt').innerHTML=`<tr><td>Nama</td><td>: ${esc(me.nama)}</td></tr><tr><td>NIM</td><td>: ${esc(me.nim)}</td></tr><tr><td>Program Studi</td><td>: ${esc(me.prodi)}</td></tr><tr><td>Waktu</td><td>: ${esc(date)}</td></tr>`;
+ document.title='Kuis_Vektor_'+me.nim+'_'+me.nama.replace(/\s+/g,'_');
+ $('review').innerHTML=Q.map((q,i)=>{const a=ans[i],good=a===q[2];
+  return `<div class="card q"><h3><span>${i+1}.</span> ${esc(q[0])}</h3>`+q[1].map((o,j)=>`<div class="opt ${j===q[2]?'right':(j===a?'wrong':'')}">${L[j]}. ${esc(o)}${j===q[2]?' ✔':''}${j===a&&!good?' ✘ (jawaban Anda)':''}</div>`).join('')+
+  `<p class="tag ${good?'ok':'no'}">${good?'Benar':(a===null?'Tidak dijawab':'Salah')} — kunci: ${L[q[2]]}</p><div class="exp"><b>Pembahasan:</b> ${esc(q[3])}</div></div>`}).join('');
+ window.scrollTo(0,0)}
+</script>
+</body>
+</html>
